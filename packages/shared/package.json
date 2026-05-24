@@ -1,0 +1,7 @@
+{
+  "name": "digital-signature-shared",
+  "version": "1.0.0",
+  "description": "Shared types and utilities for Digital Signature App",
+  "main": "src/index.js",
+  "types": "src/index.d.ts"
+}
