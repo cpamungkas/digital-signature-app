@@ -9,7 +9,7 @@
     "packages/shared"
   ],
   "scripts": {
-    "dev": "concurrently "npm run dev --workspace=packages/backend" "npm run dev --workspace=packages/frontend"",
+    "dev": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\"",
     "build": "npm run build --workspace=packages/backend && npm run build --workspace=packages/frontend",
     "test": "npm run test --workspace=packages/backend && npm run test --workspace=packages/frontend",
     "clean": "rm -rf node_modules packages/*/node_modules && npm install"
