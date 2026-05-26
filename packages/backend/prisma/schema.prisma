@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users table
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  name              String?
+  password_hash     String?
+  google_id         String?   @unique
+  subscription_tier String?   @default("free")
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  documents         Document[]
+  signatures        Signature[]
+  signingSessions   SigningSession[]
+  subscriptionPlans SubscriptionPlan[]
+
+  @@map("users")
+}
+
+// Documents table
+model Document {
+  id        String   @id @default(uuid())
+  user_id   String
+  filename  String
+  file_url  String?
+  file_hash String?
+  status    String?  @default("draft")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  user            User           @relation(fields: [user_id], references: [id])
+  signingSessions SigningSession[]
+  auditLogs       AuditLog[]
+
+  @@map("documents")
+}
+
+// Signatures table
+model Signature {
+  id                 String   @id @default(uuid())
+  user_id            String
+  signature_image_url String?
+  signature_type     String?  // drawn, uploaded
+  is_default         Boolean? @default(false)
+  created_at         DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("signatures")
+}
+
+// Signing Sessions table
+model SigningSession {
+  id                String   @id @default(uuid())
+  document_id       String
+  signer_email      String
+  signer_id         String?
+  status            String?  @default("pending")
+  signature_position Json?    // {x, y, width, height, page}
+  signed_at         DateTime?
+  token             String?  @unique
+  token_expires_at  DateTime?
+  created_at        DateTime @default(now())
+
+  // Relations
+  document Document @relation(fields: [document_id], references: [id])
+  signer   User?    @relation(fields: [signer_id], references: [id])
+
+  @@map("signing_sessions")
+}
+
+// Audit Logs table
+model AuditLog {
+  id          String   @id @default(uuid())
+  document_id String
+  action      String?  // uploaded, signed, downloaded, shared
+  actor_email String?
+  actor_ip    String?
+  user_agent  String?
+  timestamp   DateTime @default(now())
+
+  // Relations
+  document Document @relation(fields: [document_id], references: [id])
+
+  @@map("audit_logs")
+}
+
+// Subscription Plans table
+model SubscriptionPlan {
+  id                   String   @id @default(uuid())
+  user_id              String
+  plan_type            String?  // free, pro, business
+  documents_limit      Int?
+  monthly_emails_limit Int?
+  started_at           DateTime @default(now())
+  expires_at           DateTime?
+
+  // Relations
+  user User @relation(fields: [user_id], references: [id])
+
+  @@map("subscription_plans")
+}
