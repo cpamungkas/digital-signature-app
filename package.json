@@ -12,7 +12,11 @@
     "dev": "concurrently \"npm run dev --workspace=packages/backend\" \"npm run dev --workspace=packages/frontend\"",
     "build": "npm run build --workspace=packages/backend && npm run build --workspace=packages/frontend",
     "test": "npm run test --workspace=packages/backend && npm run test --workspace=packages/frontend",
-    "clean": "rm -rf node_modules packages/*/node_modules && npm install"
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:migrate": "npx prisma migrate dev",
+    "db:seed": "node packages/backend/src/db/seed.js",
+    "db:studio": "npx prisma studio"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
