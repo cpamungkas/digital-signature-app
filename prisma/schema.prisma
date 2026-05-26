@@ -7,36 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum DocumentStatus {
+  DRAFT
+  PENDING
+  SIGNED
+  COMPLETED
+  CANCELLED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  UPLOAD
+  SIGN
+  VERIFY
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+}
+
 model User {
-  id            String   @id @default(uuid()) @db.Uuid
-  email         String   @unique
+  id            String     @id @default(uuid()) @db.Uuid
+  email         String     @unique
   name          String?
-  passwordHash  String?  @map("password_hash")
-  avatarUrl     String?  @map("avatar_url")
-  emailVerified Boolean  @default(false) @map("email_verified")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  passwordHash  String?    @map("password_hash")
+  avatarUrl     String?    @map("avatar_url")
+  role          UserRole   @default(USER)
+  emailVerified Boolean    @default(false) @map("email_verified")
+  isActive      Boolean    @default(true) @map("is_active")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
 
-  documents Document[]
-  signatures Signature[]
+  documents      Document[]
+  signatures     Signature[]
+  refreshTokens  RefreshToken[]
+  auditLogs      AuditLog[]
 
+  @@index([email])
+  @@index([role])
   @@map("users")
 }
 
 model Document {
-  id        String   @id @default(uuid()) @db.Uuid
+  id        String         @id @default(uuid()) @db.Uuid
   title     String
   content   String?
-  fileUrl   String?  @map("file_url")
-  fileType  String?  @map("file_type")
-  status    String   @default("draft")
-  userId    String   @map("user_id") @db.Uuid
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  fileUrl   String?        @map("file_url")
+  fileType  String?        @map("file_type")
+  fileSize  Int?           @map("file_size")
+  pageCount Int?           @default(1) @map("page_count")
+  status    DocumentStatus @default(DRAFT)
+  hash      String?        @map("hash")
+  userId    String         @map("user_id") @db.Uuid
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  deletedAt DateTime?      @map("deleted_at")
 
-  user       User       @relation(fields: [userId], references: [id])
+  user       User              @relation(fields: [userId], references: [id])
   signatures Signature[]
+  signers    DocumentSignatory[]
 
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
   @@map("documents")
 }
 
@@ -50,5 +89,63 @@ model Signature {
   document Document @relation(fields: [documentId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 
+  @@index([documentId])
+  @@index([userId])
   @@map("signatures")
+}
+
+model DocumentSignatory {
+  id         String    @id @default(uuid()) @db.Uuid
+  documentId String    @map("document_id") @db.Uuid
+  email      String
+  name       String?
+  signedAt   DateTime? @map("signed_at")
+  token      String    @unique
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  document Document @relation(fields: [documentId], references: [id])
+
+  @@index([documentId])
+  @@index([email])
+  @@index([token])
+  @@map("document_signatories")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  token      String    @unique
+  userId     String    @map("user_id") @db.Uuid
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  revokedAt  DateTime? @map("revoked_at")
+  replacedBy String?   @map("replaced_by")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+  @@map("refresh_tokens")
+}
+
+model AuditLog {
+  id        String      @id @default(uuid()) @db.Uuid
+  action    AuditAction
+  entity    String
+  entityId  String?     @map("entity_id")
+  userId    String?     @map("user_id") @db.Uuid
+  metadata  Json?
+  ipAddress String?     @map("ip_address")
+  userAgent String?     @map("user_agent")
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([action])
+  @@index([entity])
+  @@index([entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
