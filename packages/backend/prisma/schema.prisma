@@ -9,38 +9,39 @@ datasource db {
 
 // User model
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  passwordHash  String         @map("password_hash")
-  fullName      String         @map("full_name")
-  role          Role           @default(USER)
-  isActive      Boolean        @default(true) @map("is_active")
-  createdAt     DateTime       @default(now()) @map("created_at")
-  updatedAt     DateTime       @updatedAt @map("updated_at")
-  
-  signatures    Signature[]
-  documents     Document[]
-  auditLogs     AuditLog[]
-  
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  fullName     String   @map("full_name")
+  role         Role     @default(USER)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  signatures Signature[]
+  documents  Document[]
+  AuditLog   AuditLog[]
+
   @@map("users")
 }
 
 // Signature model
 model Signature {
-  id             String         @id @default(uuid())
-  userId         String         @map("user_id")
-  signatureData  String         @map("signature_data") // Base64 image
-  signatureHash  String         @map("signature_hash") // SHA-256 hash
-  createdAt      DateTime       @default(now()) @map("created_at")
-  
-  user                User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documentSignatures  DocumentSignature[]
-  
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  signatureData String   @map("signature_data") // Base64 image
+  signatureHash String   @map("signature_hash") // SHA-256 hash
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentSignatures DocumentSignature[]
+
   @@map("signatures")
 }
 
 // Document model
 model Document {
+<<<<<<< HEAD
   id          String       @id @default(uuid())
   userId      String       @map("user_id")
   fileName    String       @map("file_name")
@@ -51,10 +52,10 @@ model Document {
   status      DocumentStatus @default(UNSIGNED)
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
-  
+
   user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   documentSignatures  DocumentSignature[]
-  
+
   @@map("documents")
 }
 
@@ -67,10 +68,10 @@ model DocumentSignature {
   positionY   Int      @map("position_y")
   pageNumber  Int      @map("page_number")
   signedAt    DateTime @default(now()) @map("signed_at")
-  
-  document   Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  signature  Signature @relation(fields: [signatureId], references: [id], onDelete: Cascade)
-  
+
+  document  Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  signature Signature @relation(fields: [signatureId], references: [id], onDelete: Cascade)
+
   @@map("document_signatures")
 }
 
@@ -85,9 +86,12 @@ model AuditLog {
   ipAddress    String?  @map("ip_address")
   userAgent    String?  @map("user_agent")
   createdAt    DateTime @default(now()) @map("created_at")
-  
-  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+
+  documentId String?   @map("document_id")
+  document   Document? @relation(fields: [documentId], references: [id])
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   @@index([userId])
   @@index([createdAt])
   @@map("audit_logs")
