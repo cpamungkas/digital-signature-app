@@ -54,7 +54,6 @@ model Document {
   
   user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   documentSignatures  DocumentSignature[]
-  auditLogs           AuditLog[]
   
   @@map("documents")
 }
