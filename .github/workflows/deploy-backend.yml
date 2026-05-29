@@ -9,15 +9,27 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Backend to Vercel
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+
+      - uses: actions/setup-node@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.BACKEND_VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./packages/backend
+          node-version: 22
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel Environment
+        run: |
+          vercel pull --yes \
+          --environment=production \
+          --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./packages/backend
+
+      - name: Deploy Backend
+        run: |
+          vercel deploy --prod \
+          --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./packages/backend
