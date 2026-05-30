@@ -4,6 +4,6 @@
   "outputDirectory": ".next",
   "installCommand": "npm install",
   "env": {
-    "NEXT_PUBLIC_API_URL": "https://digital-signature-app-backend.vercel.app"
+    "VITE_API_URL": "https://digital-signature-app-backend.vercel.app"
   }
 }
