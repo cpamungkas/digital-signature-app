@@ -4,7 +4,7 @@
   "description": "Digital Signature Backend API",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc-b",
+    "build": "tsc -b",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "db:generate": "npx prisma generate",
