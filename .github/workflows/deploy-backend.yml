@@ -1,33 +1,37 @@
 name: Deploy Backend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'packages/backend/**'
-      - '.github/workflows/deploy-backend.yml'
+push:
+branches: [main]
+paths:
+- 'packages/backend/**'
+- '.github/workflows/deploy-backend.yml'
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+deploy:
+runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+steps:
+  - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 22
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+  - name: Install Vercel CLI
+    run: npm install -g vercel@latest
 
-      - name: Pull Vercel Environment
-        run: |
-          vercel pull --yes \
-          --environment=production \
-          --token=${{ secrets.VERCEL_TOKEN }}
+  - name: Pull Vercel Environment
+    working-directory: packages/backend
+    run: |
+      vercel pull \
+        --yes \
+        --environment=production \
+        --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Deploy Backend
-        run: |
-          vercel deploy --prod \
-          --token=${{ secrets.VERCEL_TOKEN }}
+  - name: Deploy Backend
+    working-directory: packages/backend
+    run: |
+      vercel deploy \
+        --prod \
+        --token=${{ secrets.VERCEL_TOKEN }}
