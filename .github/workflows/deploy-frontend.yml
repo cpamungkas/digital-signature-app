@@ -1,23 +1,37 @@
 name: Deploy Frontend
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'packages/frontend/**'
-      - '.github/workflows/deploy-frontend.yml'
+push:
+branches: [main]
+paths:
+- 'packages/frontend/**'
+- '.github/workflows/deploy-frontend.yml'
 
 jobs:
-  deploy:
-    name: Deploy Frontend to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.FRONTEND_VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
-          working-directory: ./packages/frontend
+deploy:
+runs-on: ubuntu-latest
+
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 22
+
+  - name: Install Vercel CLI
+    run: npm install -g vercel@latest
+
+  - name: Pull Vercel Environment
+    working-directory: packages/frontend
+    run: |
+      vercel pull \
+        --yes \
+        --environment=production \
+        --token=${{ secrets.VERCEL_TOKEN }}
+
+  - name: Deploy Frontend
+    working-directory: packages/frontend
+    run: |
+      vercel deploy \
+        --prod \
+        --token=${{ secrets.VERCEL_TOKEN }}
