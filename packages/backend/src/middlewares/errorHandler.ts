@@ -23,7 +23,7 @@ export const errorHandler = (
 ) => {
   let statusCode = 500;
   let message = 'Internal Server Error';
-  let error = undefined;
+  let _error = undefined;
 
   if (err instanceof ApiError) {
     statusCode = err.statusCode;

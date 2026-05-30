@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, extractToken } from '../utils/auth';
-import { logger } from '../utils/logger';
+// import { logger } from '../utils/logger';
 import { ApiError } from './errorHandler';
 
 /**
