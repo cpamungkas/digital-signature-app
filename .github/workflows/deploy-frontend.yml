@@ -1,37 +1,35 @@
 name: Deploy Frontend
 
 on:
-push:
-branches: [main]
-paths:
-- 'packages/frontend/**'
-- '.github/workflows/deploy-frontend.yml'
-
+  push:
+    branches: [main]
+    paths:
+      - 'packages/frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
 jobs:
-deploy:
-runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
 
-steps:
-  - uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
 
-  - uses: actions/setup-node@v4
-    with:
-      node-version: 22
+      - name: Pull Vercel Environment
+        working-directory: packages/frontend
+        run: |
+          vercel pull \
+            --yes \
+            --environment=production \
+            --token=${{ secrets.VERCEL_TOKEN }}
 
-  - name: Install Vercel CLI
-    run: npm install -g vercel@latest
-
-  - name: Pull Vercel Environment
-    working-directory: packages/frontend
-    run: |
-      vercel pull \
-        --yes \
-        --environment=production \
-        --token=${{ secrets.VERCEL_TOKEN }}
-
-  - name: Deploy Frontend
-    working-directory: packages/frontend
-    run: |
-      vercel deploy \
-        --prod \
-        --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Frontend
+        working-directory: packages/frontend
+        run: |
+          vercel deploy \
+            --prod \
+            --token=${{ secrets.VERCEL_TOKEN }}
