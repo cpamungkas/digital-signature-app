@@ -26,10 +26,8 @@ jobs:
           vercel pull --yes \
           --environment=production \
           --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./packages/backend
 
       - name: Deploy Backend
         run: |
           vercel deploy --prod \
           --token=${{ secrets.VERCEL_TOKEN }}
-        working-directory: ./packages/backend
