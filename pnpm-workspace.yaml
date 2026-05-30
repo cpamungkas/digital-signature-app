@@ -1,9 +1,8 @@
 packages:
-  - 'apps/*'
-  - 'packages/*'
+  - "packages/*"
 allowBuilds:
-  '@prisma/client': true
-  '@prisma/engines': true
+  "@prisma/client": true
+  "@prisma/engines": true
   bcrypt: true
   canvas: true
   core-js: true
