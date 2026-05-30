@@ -41,19 +41,20 @@ model Signature {
 
 // Document model
 model Document {
-  id          String       @id @default(uuid())
-  userId      String       @map("user_id")
-  fileName    String       @map("file_name")
-  filePath    String       @map("file_path") // Cloudinary URL
-  fileHash    String       @map("file_hash") // SHA-256 hash
-  fileSize    Int          @map("file_size") // in bytes
-  mimeType    String       @map("mime_type") @default("application/pdf")
-  status      DocumentStatus @default(UNSIGNED)
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  id        String         @id @default(uuid())
+  userId    String         @map("user_id")
+  fileName  String         @map("file_name")
+  filePath  String         @map("file_path") // Cloudinary URL
+  fileHash  String         @map("file_hash") // SHA-256 hash
+  fileSize  Int            @map("file_size") // in bytes
+  mimeType  String         @default("application/pdf") @map("mime_type")
+  status    DocumentStatus @default(UNSIGNED)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
 
-  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  documentSignatures  DocumentSignature[]
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documentSignatures DocumentSignature[]
+  auditLogs          AuditLog[]          @relation("DocumentAuditLogs")
 
   @@map("documents")
 }
@@ -86,8 +87,9 @@ model AuditLog {
   userAgent    String?  @map("user_agent")
   createdAt    DateTime @default(now()) @map("created_at")
 
-  documentId String?   @map("document_id")
-  document   Document? @relation(fields: [documentId], references: [id])
+  documentId String? @map("document_id")
+
+  document Document? @relation("DocumentAuditLogs", fields: [documentId], references: [id])
 
   user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
